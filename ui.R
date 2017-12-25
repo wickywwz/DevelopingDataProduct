@@ -1,70 +1,65 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
-library(markdown)
 
 shinyUI( 
-        navbarPage("Iris Species Predictor", 
-                   tabPanel("Use the App", 
+        navbarPage("What is your iris species", 
+                   tabPanel("Classifier",
                             sidebarPanel( 
                                     width = 8, 
                                     
-                                    h3("Your choices (red lines) against iris dataset values."), 
+                                    h3("Your flower measurements against iris dataset"), 
+                                    
                                     
                                     fluidRow( 
                                             splitLayout(cellWidths = c("50%", "50%"), 
-                                                        plotOutput("plotSepalWidth", height = "180px"), 
-                                                        plotOutput("plotSepalLength", height = "180px") 
+                                                        plotOutput("sepal_width_plot", height = "200px"), 
+                                                        plotOutput("sepal_length_plot", height = "200px") 
                                             )), 
                                     
                                     fluidRow( 
                                             splitLayout(cellWidths = c("50%", "50%"), 
-                                                        sliderInput("sepalWidth",  
+                                                        sliderInput("sepal_width",  
                                                                     "Sepal Width:",  
-                                                                    min = round(min(iris$Sepal.Width) / 2, 1), 
-                                                                    max = round(max(iris$Sepal.Width) * 1.25, 1), 
+                                                                    min = round(min(iris$Sepal.Width) * 0.5, 1), 
+                                                                    max = round(max(iris$Sepal.Width) * 1.5, 1),
+                                                                    round = -2,
                                                                     value = round(mean(iris$Sepal.Width), 1)), 
-                                                        sliderInput("sepalLength",  
+                                                        sliderInput("sepal_length",  
                                                                     "Sepal Length:", 
-                                                                    min = round(min(iris$Sepal.Length) / 2, 1), 
-                                                                    max = round(max(iris$Sepal.Length) * 1.25, 1), 
+                                                                    min = round(min(iris$Sepal.Length) * 0.5, 1), 
+                                                                    max = round(max(iris$Sepal.Length) * 1.5, 1), 
+                                                                    round = -1,
                                                                     value = round(mean(iris$Sepal.Length), 1)) 
                                             )), 
                                     
                                     fluidRow( 
                                             splitLayout(cellWidths = c("50%", "50%"), 
-                                                        plotOutput("plotPetalWidth", height = "180px"), 
-                                                        plotOutput("plotPetalLength", height = "180px") 
+                                                        plotOutput("petal_width_plot", height = "200px"), 
+                                                        plotOutput("petal_length_plot", height = "200px") 
                                             )), 
                                     
                                     fluidRow( 
                                             splitLayout(cellWidths = c("50%", "50%"), 
-                                                        sliderInput("petalWidth",  
+                                                        sliderInput("petal_width",  
                                                                     "Petal Width:",  
-                                                                    min = round(min(iris$Petal.Width) / 2, 1), 
-                                                                    max = round(max(iris$Petal.Width) * 1.25, 1), 
+                                                                    min = round(min(iris$Petal.Width) * 0.5, 1), 
+                                                                    max = round(max(iris$Petal.Width) * 1.5, 1), 
+                                                                    round = -2,
                                                                     value = round(mean(iris$Petal.Width), 1)), 
-                                                        sliderInput("petalLength",  
+                                                        sliderInput("petal_length",  
                                                                     "Petal Length:", 
-                                                                    min = round(min(iris$Petal.Length) / 2, 1), 
-                                                                    max = round(max(iris$Petal.Length) * 1.25, 1), 
+                                                                    min = round(min(iris$Petal.Length) * 0.5, 1), 
+                                                                    max = round(max(iris$Petal.Length) * 1.5, 1),
+                                                                    round = -1,
                                                                     value = round(mean(iris$Petal.Length ), 1)) 
                                             )), 
                                     
                                     actionButton( 
-                                            inputId = "submitBtn", 
-                                            label = "Classify My Iris" 
+                                            inputId = "submit", 
+                                            label = "Classify My Flower" 
                                     ), 
                                     
                                     actionButton( 
-                                            inputId = "resetBtn", 
+                                            inputId = "reset", 
                                             label = "Reset" 
                                     ) 
                             ), 
@@ -72,19 +67,22 @@ shinyUI(
                             mainPanel( 
                                     width = 4, 
                                     tabsetPanel( 
-                                            tabPanel(p(icon("table"), "Classify Your Iris"),                              
-                                                     h1("Prediction"), 
-                                                     h3("Shown as probabilities for each species."), 
-                                                     p("Choose your measurements and hit 'Classify My Iris'."), 
+                                            tabPanel(p(icon("bar-chart"), "My Flower Type"), 
+                                                     h2("Instruction"),
+                                                     p("Step 1: Slide the white button below each figure to choose your flower's shape."),
+                                                     p("Step 2: Click 'Classify My Iris' button to find out your flower's species"),
+                                                     h2("Result"), 
+                                                     p("Shown as probabilities for each species according to your input."), 
                                                      tableOutput("prediction") 
                                             ), 
                                             
-                                            tabPanel(p(icon("table"), "Prediction Model"), 
+                                            tabPanel(p(icon("desktop"), "Classification Model"), 
                                                      
-                                                     h1("Prediction Model"), 
-                                                     p("Predictions are based on a random forests model trained against the complete iris dataset. For more details view source on GitHub:"), 
-                                                     a(href = "http://github.com", 
-                                                       "http://github.com", 
+                                                     h2("Model Description"), 
+                                                     p("Model used in this app is trained on the complete iris dataset. Random forests model is used to form the classifier."),
+                                                     p("All files about this app can be accessed on GitHub:"), 
+                                                     a(href = "https://github.com/wickywwz/DevelopingDataProduct", 
+                                                       "https://github.com/wickywwz/DevelopingDataProduct", 
                                                        target = "_blank"), 
                                                      
                                                      h2("Dataset"), 
@@ -92,16 +90,31 @@ shinyUI(
                                                      a(href = "https://en.wikipedia.org/wiki/Iris_flower_data_set", 
                                                        "https://en.wikipedia.org/wiki/Iris_flower_data_set", 
                                                        target = "_blank"), 
-                                                     h3("str(iris)"), 
-                                                     tableOutput("oStr") 
+                                                     h3("dataset structure:"), 
+                                                     tableOutput("str_iris") ,
+                                                     h3("dataset summary:"), 
+                                                     tableOutput("sum_iris"),
+                                                     
+                                                     h2("User Guide"), 
+                                                     p("A brief presentation about this app is on RPubs:"), 
+                                                     a(href = "http://rpubs.com/wickywwz/iris_app", 
+                                                       "http://rpubs.com/wickywwz/iris_app", 
+                                                       target = "_blank"),
+                                                     p("If you have troubles using this app, you can find some useful guidiance in this presentation.")
+                                                     
+                                                     
                                             ) 
                                     ) 
                             ) 
                    ), 
                    
-                   tabPanel(p(icon("info"), "About"), 
+                   tabPanel(p(icon("info"), "Info"), 
                             mainPanel( 
-                                    includeMarkdown("about.Rmd")) 
+                                    p("This app is part of the Developing Data Products course project on Coursera"),
+                                    a(href="https://www.coursera.org/learn/data-products/",
+                                      "https://www.coursera.org/learn/data-products/",
+                                      target = "_blank")
+                            )
                    ) 
         ) 
 )

@@ -1,12 +1,3 @@
-#
-# This is the server logic of a Shiny web application. You can run the 
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
 library(lattice) 
 library(ggplot2) 
@@ -14,28 +5,25 @@ library(e1071)
 library(caret)
 library(randomForest) 
 
-##### 
-# Random Forest classificator 
-##### 
-set.seed(777) 
+# Training The Random Forest Classifier
 
+set.seed(12306) 
 
-buildRFModel <- function() { 
-        fitControl <- trainControl(method = "cv", number = 5) 
-        fitRF <- train(Species ~ ., data = iris, 
+rf_classifier <- function() { 
+        fit_method <- trainControl(method = "cv", number = 10) 
+        fit_model <- train(Species ~ ., data = iris, 
                        method = "rf", 
-                       trControl = fitControl) 
+                       trControl = fit_method) 
         print(timestamp()) 
-        return(fitRF) 
+        return(fit_model) 
 } 
 
 
-predictIris <- function(trainedModel, inputs) { 
+flower_pred <- function(trainedModel, inputs) { 
         prediction <- predict(trainedModel, 
                               newdata = inputs, 
                               type = "prob", 
                               predict.all = TRUE) 
-        #return(renderText(levels(iris$Species)[prediction])) 
         return(renderTable(prediction)) 
 } 
 
@@ -44,28 +32,31 @@ shinyServer(
         function(input, output, session) { 
                 
                 data(iris) 
+          
+                data_sum <- capture.output(summary(iris)) 
+                data_sum  <- paste(data_sum , collapse = "<br/>") 
+                output$sum_iris <- renderText(data_sum)
                 
-                myStr <- capture.output(str(iris)) 
-                myStr <- paste(myStr, collapse = "<br/>") 
-                output$oStr <- renderText(myStr) 
+                data_str <- capture.output(str(iris)) 
+                data_str  <- paste(data_str , collapse = "<br/>") 
+                output$str_iris <- renderText(data_str)
                 
+                output$sepal_width <- renderText(input$sepal_width) 
+                output$sepal_length <- renderText(input$sepal_length) 
+                output$petal_width <- renderText(input$petal_width) 
+                output$petal_length <- renderText(input$petal_length) 
+
+                #output$sepal_width_mean <- renderText(mean(iris$Sepal.Width)) 
+                #output$sepal_length_mean <- renderText(mean(iris$Sepal.Length)) 
+                #output$petal_width_mean <- renderText(mean(iris$Petal.Width)) 
+                #output$petal_length_mean <- renderText(mean(iris$Petal.Length)) 
                 
-                output$outputSepalWidth <- renderText(input$sepalWidth) 
-                output$outputSepalLength <- renderText(input$sepalLength) 
-                output$outputPetalWidth <- renderText(input$petalWidth) 
-                output$outputPetalLength <- renderText(input$petalLength) 
+                #output$sepal_width_sd <- renderText(sd(iris$Sepal.Width)) 
+                #output$sepal_length_sd <- renderText(sd(iris$Sepal.Length)) 
+                #output$petal_width_sd <- renderText(sd(iris$Petal.Width)) 
+                #output$petal_length_sd <- renderText(sd(iris$Petal.Length)) 
                 
-                output$outputSepalWidthSD <- renderText(sd(iris$Sepal.Width)) 
-                output$outputSepalLengthSD <- renderText(sd(iris$Sepal.Length)) 
-                output$outputPetalWidthSD <- renderText(sd(iris$Petal.Width)) 
-                output$outputPetalLengthSD <- renderText(sd(iris$Petal.Length)) 
-                
-                output$outputSepalWidthMean <- renderText(mean(iris$Sepal.Width)) 
-                output$outputSepalLengthMean <- renderText(mean(iris$Sepal.Length)) 
-                output$outputPetalWidthMean <- renderText(mean(iris$Petal.Width)) 
-                output$outputPetalLengthMean <- renderText(mean(iris$Petal.Length)) 
-                
-                output$plotSepalWidth <- renderPlot({ 
+                output$sepal_width_plot <- renderPlot({ 
                         ggplot(iris, aes(x = Sepal.Width, 
                                          group = Species, 
                                          fill = as.factor(Species))) +  
@@ -73,15 +64,15 @@ shinyServer(
                                 scale_fill_discrete(name = "Species") + 
                                 theme_bw() + 
                                 xlab("Sepal Width") + 
-                                geom_vline(xintercept = input$sepalWidth, 
-                                           color = "red", 
+                                geom_vline(xintercept = input$sepal_width, 
+                                           color = "green", 
                                            size = 2) + 
-                                scale_x_continuous(limits = c(round(min(iris$Sepal.Width) / 2, 1), 
-                                                              round(max(iris$Sepal.Width) * 1.25, 1))) 
+                                scale_x_continuous(limits = c(round(min(iris$Sepal.Width) *0.5, 1), 
+                                                              round(max(iris$Sepal.Width) *1.5, 1))) 
                         
                 }) 
                 
-                output$plotSepalLength <- renderPlot({ 
+                output$sepal_length_plot <- renderPlot({ 
                         ggplot(iris, aes(x = Sepal.Length, 
                                          group = Species, 
                                          fill = as.factor(Species))) +  
@@ -89,15 +80,15 @@ shinyServer(
                                 scale_fill_discrete(name = "Species") + 
                                 theme_bw() + 
                                 xlab("Sepal Length") + 
-                                geom_vline(xintercept = input$sepalLength, 
-                                           color = "red", 
+                                geom_vline(xintercept = input$sepal_length, 
+                                           color = "green", 
                                            size = 2) + 
-                                scale_x_continuous(limits = c(round(min(iris$Sepal.Length) / 2, 1), 
-                                                              round(max(iris$Sepal.Length) * 1.25, 1))) 
+                                scale_x_continuous(limits = c(round(min(iris$Sepal.Length) *0.5, 1), 
+                                                              round(max(iris$Sepal.Length) *1.5, 1))) 
                         
                 }) 
                 
-                output$plotPetalWidth <- renderPlot({ 
+                output$petal_width_plot <- renderPlot({ 
                         ggplot(iris, aes(x = Petal.Width, 
                                          group = Species, 
                                          fill = as.factor(Species))) +  
@@ -105,15 +96,15 @@ shinyServer(
                                 scale_fill_discrete(name = "Species") + 
                                 theme_bw() + 
                                 xlab("Petal Width") + 
-                                geom_vline(xintercept = input$petalWidth, 
+                                geom_vline(xintercept = input$petal_width, 
                                            color = "red", 
                                            size = 2) + 
-                                scale_x_continuous(limits = c(round(min(iris$Petal.Width) / 2, 1), 
-                                                              round(max(iris$Petal.Width) * 1.25, 1))) 
+                                scale_x_continuous(limits = c(round(min(iris$Petal.Width) *0.5, 1), 
+                                                              round(max(iris$Petal.Width) *1.5, 1))) 
                         
                 }) 
                 
-                output$plotPetalLength <- renderPlot({ 
+                output$petal_length_plot <- renderPlot({ 
                         ggplot(iris, aes(x = Petal.Length, 
                                          group = Species, 
                                          fill = as.factor(Species))) +  
@@ -121,39 +112,40 @@ shinyServer(
                                 scale_fill_discrete(name = "Species") + 
                                 theme_bw() + 
                                 xlab("Petal Length") + 
-                                geom_vline(xintercept = input$petalLength, 
+                                geom_vline(xintercept = input$petal_length, 
                                            color = "red", 
                                            size = 2) + 
-                                scale_x_continuous(limits = c(round(min(iris$Petal.Length) / 2, 1), 
-                                                              round(max(iris$Petal.Length) * 1.25, 1))) 
+                                scale_x_continuous(limits = c(round(min(iris$Petal.Length) *0.5, 1), 
+                                                              round(max(iris$Petal.Length) *1.5, 1))) 
                         
                 }) 
                 
-                builtModel <- reactive({ 
-                        buildRFModel() 
+                fit_model <- reactive({ 
+                        rf_classifier() 
                 }) 
                 
                 observeEvent( 
-                        eventExpr = input[["submitBtn"]], 
+                        eventExpr = input[["submit"]], 
                         handlerExpr = { 
-                                withProgress(message = 'Just a moment...', value = 0, { 
-                                        myModel <- builtModel() 
+                                withProgress(message = 'Please wait...', value = 0, { 
+                                        my_model <- fit_model() 
                                 }) 
-                                Sepal.Length <- input$sepalLength 
-                                Sepal.Width <- input$sepalWidth 
-                                Petal.Length <- input$petalLength 
-                                Petal.Width <- input$petalWidth 
-                                myEntry <- data.frame(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width) 
+                                Sepal.Width <- input$sepal_width 
+                                Sepal.Length <- input$sepal_length 
+                                Petal.Width <- input$petal_width 
+                                Petal.Length <- input$petal_length 
                                 
-                                myPrediction <- predictIris(myModel, myEntry) 
-                                output$prediction <- myPrediction 
+                                my_flower <- data.frame(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width) 
+                                
+                                my_prediction <- flower_pred(my_model, my_flower) 
+                                output$prediction <- my_prediction 
                         }) 
                 
-                observeEvent(input[["resetBtn"]], { 
-                        updateNumericInput(session, "sepalWidth", value = round(mean(iris$Sepal.Width), 1)) 
-                        updateNumericInput(session, "sepalLength", value = round(mean(iris$Sepal.Length), 1)) 
-                        updateNumericInput(session, "petalWidth", value = round(mean(iris$Petal.Width), 1)) 
-                        updateNumericInput(session, "petalLength", value = round(mean(iris$Petal.Length), 1)) 
+                observeEvent(input[["reset"]], { 
+                        updateNumericInput(session, "sepal_width", value = round(mean(iris$Sepal.Width), 1)) 
+                        updateNumericInput(session, "sepal_length", value = round(mean(iris$Sepal.Length), 1)) 
+                        updateNumericInput(session, "petal_width", value = round(mean(iris$Petal.Width), 1)) 
+                        updateNumericInput(session, "petal_length", value = round(mean(iris$Petal.Length), 1)) 
                 }) 
         } 
 ) 
