@@ -1,0 +1,13 @@
+name: Coursera_DataProduct
+title: Coursera_DataProduct
+username:
+account: wickywwz
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 251521
+bundleId: 1150005
+url: https://wickywwz.shinyapps.io/Coursera_DataProduct/
+when: 1514185072.95104
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: DataProductProjectPresentation-rpubs.html|DataProductProjectPresentation.md|DataProductProjectPresentation.Rpres

@@ -1,0 +1,13 @@
+name: FindYourIrisSpecies
+title: FindYourIrisSpecies
+username:
+account: wickywwz
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 251523
+bundleId: 1150008
+url: https://wickywwz.shinyapps.io/FindYourIrisSpecies/
+when: 1514185359.46543
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: DataProductProjectPresentation-rpubs.html|DataProductProjectPresentation.md|DataProductProjectPresentation.Rpres
