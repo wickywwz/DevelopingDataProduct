@@ -1,0 +1,123 @@
+Find Out Your Iris Species
+========================================================
+title: "Find Out Your Iris Species"
+transition: rotate
+font-family: 'Helvetica'
+width: 1440
+height: 900
+
+
+
+Wenzhao Wu
+
+Dec 25,2017
+
+
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(e1071) 
+library(caret)
+library(randomForest) 
+set.seed(12306) 
+
+rf_classifier <- function() { 
+        fit_method <- trainControl(method = "cv", number = 10) 
+        fit_model <- train(Species ~ ., data = iris, 
+                       method = "rf", 
+                       trControl = fit_method) 
+        print(timestamp()) 
+        return(fit_model) 
+} 
+
+
+flower_pred <- function(trainedModel, inputs) { 
+        prediction <- predict(trainedModel, 
+                              newdata = inputs, 
+                              type = "prob", 
+                              predict.all = TRUE) 
+        return(renderTable(prediction)) 
+} 
+```
+
+Background
+========================================================
+The famous iris dataset gives the measurements in centimeters of the variables sepal length and width and petal length and width, respectively, for 50 flowers from each of 3 species of iris. 
+
+<small>A brief summary of the dataset is shown below:
+</small>
+
+```{r, echo=FALSE,comment=''}
+str(iris)
+```
+
+In this app, users can input their own flower shape and find out the probabilities of iris species the customized flower belonged to.
+
+How does the app work
+========================================================
+
+In the input panel, four probability density graphs are shown for each measurement of the flower. Different specis is painted with different color to give users a visual sense about the border for each species in specific measurement.
+
+```{r,echo=FALSE,fig.width=8,fig.height=4,dpi=300,out.width="1440px", out.height="720px"}
+g <- ggplot(iris, aes(x = Petal.Width, group = Species, fill = as.factor(Species))) 
+g <- g + geom_density(position = "identity", alpha = 0.5) 
+g <- g + scale_fill_discrete(name = "Species")
+g <- g + theme_bw()
+g <- g + xlab("Sepal Width") 
+g <- g + geom_vline(xintercept = mean(iris$Petal.Width), color = "red", size = 2)
+g <- g + scale_x_continuous(limits = c(round(min(iris$Petal.Width) *0.5, 1),round(max(iris$Petal.Width) *1.5, 1)))
+g
+```
+
+
+How does the app work
+========================================================
+
+Users can use the app following two simple steps
+
+- Slide the white button below each figure to choose the shape of the flower.
+- Hit 'Classify My Iris' button to find out the species of the flower
+
+Prediction result is shown as probabilities for each species according to the user's input.
+
+
+<small>One example of the result is shown here:
+</small>
+
+```{r cars, echo = FALSE,comment=''}
+result = data.frame(0.20,0.73,0.07)
+colnames(result) = c("setosa","versicolor","virginica")
+print(result)
+```
+
+Model behind the app
+========================================================
+
+- Random forest model is used to build the classifier of this app. 
+-  fold cross validation is implemented to avoid overfitting. 
+- Accuracy of the model is up to 95% with kappa value 0.93.
+
+```{r model, echo=FALSE, comment='',cache=TRUE,fig.width=8, fig.height=4.5, dpi=300, out.width="940px", out.height="529px"}
+rf_classifier <- function() { 
+        fit_method <- trainControl(method = "cv", number = 10) 
+        fit_model <- train(Species ~ ., data = iris, 
+                       method = "rf", 
+                       trControl = fit_method) 
+        return(fit_model) 
+} 
+rf_model <- rf_classifier()
+rf_model
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
